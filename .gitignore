@@ -27,3 +27,12 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio
+*.vs
+*.db
+*.mll
+*.pdb
+*.lib
+*.ilk
+*.exp
