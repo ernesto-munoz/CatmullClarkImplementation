@@ -156,6 +156,11 @@ void KSubdivisionNode::applyCatmullClark(MObject & inputMeshObj, MObject & outpu
 		// valence = num of edges connected to this point (n)
 		unsigned valence = numConnectedEdges;
 
+		if (valence < 3) {
+			newControlVertexPoints.append(vertexIt.position(MSpace::kObject, &status));
+			continue;
+		}
+
 		// Average of the surrounding face points
 		MPoint averageFacePoint(0.0, 0.0, 0.0);
 		for (unsigned int i = 0; i < numConnectedFaces; ++i) {
@@ -175,12 +180,13 @@ void KSubdivisionNode::applyCatmullClark(MObject & inputMeshObj, MObject & outpu
 		}
 		averageEdgePoint *= 2.0 / numConnectedEdges;
 
-		// Control point
 		MPoint controlPoint = vertexIt.position(MSpace::kObject, &status) * (valence - 3); CHECK_MSTATUS(status);
 
 		// Calculate new point position
 		MPoint newControlVertex = averageFacePoint + averageEdgePoint + controlPoint;
 		newControlVertex *= (1.0 / valence);
+
+		cout << "New control point: " << vertexIt.index() << " " << newControlVertex.x << " " << newControlVertex.y << " " << newControlVertex.z << endl;
 
 		newControlVertexPoints.append(newControlVertex);
 	}
@@ -188,13 +194,13 @@ void KSubdivisionNode::applyCatmullClark(MObject & inputMeshObj, MObject & outpu
 	// Create the new polygon
 	unsigned int originalPolygonNum = inputMeshFn.numPolygons();
 	for (unsigned int polygonIndex = 0; polygonIndex < originalPolygonNum; ++polygonIndex) {
-		for (unsigned int v = 0; v < polygonsVertices[polygonIndex].length(); ++v) {
+		for (int v = 0, previousV = polygonsVertices[polygonIndex].length() - 1; v < polygonsVertices[polygonIndex].length(); ++v, ++previousV) {
 			MPointArray newPolygonPoints;
 			MPoint vertex0, vertex1, vertex2, vertex3;
 			vertex0 = newControlVertexPoints[polygonsVertices[polygonIndex][v]];
 			vertex1 = edgePoints[polygonsEdges[polygonIndex][v]];
 			vertex2 = facePoints[polygonIndex];
-			vertex3 = edgePoints[polygonsEdges[polygonIndex][(v - 1) % polygonsVertices[polygonIndex].length()]];
+			vertex3 = edgePoints[polygonsEdges[polygonIndex][previousV % polygonsVertices[polygonIndex].length()]];
 			newPolygonPoints.append(vertex0); newPolygonPoints.append(vertex1); newPolygonPoints.append(vertex2); newPolygonPoints.append(vertex3);
 			outputMeshFn.addPolygon(newPolygonPoints, true, 1.0e-10, MObject::kNullObj, &status); CHECK_MSTATUS(status);
 		}
