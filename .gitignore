@@ -41,3 +41,4 @@ Debug
 *.log
 *.tlog
 *.lastbuildstate
+*.opendb
