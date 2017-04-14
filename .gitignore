@@ -37,3 +37,7 @@
 *.ilk
 *.exp
 Debug
+*.idb
+*.log
+*.tlog
+*.lastbuildstate
