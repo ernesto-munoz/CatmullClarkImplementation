@@ -11,7 +11,7 @@ MStatus KSubdivisionNode::compute(const MPlug & plug, MDataBlock & data)
 {
 	MStatus status;
 
-	if (plug == outputMesh || plug == numIterations) {
+	if (plug == outputMesh) {
 		cout << "Begin Catmull Clark" << endl;
 		// Get Input
 		MDataHandle inputDataHandle = data.inputValue(numIterations, &status); CHECK_MSTATUS(status);
@@ -40,7 +40,7 @@ MStatus KSubdivisionNode::compute(const MPlug & plug, MDataBlock & data)
 		data.setClean(plug);
 	}
 	else {
-		MS::kUnknownParameter;
+		return MS::kUnknownParameter;
 	}
 
 	return status;
